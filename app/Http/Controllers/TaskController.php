@@ -101,7 +101,16 @@ class TaskController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'title' => 'required|max:255',
+            'description' => 'nullable|string',
+            'due_date' => 'nullable|date',
+        ]);
+
+        Task::create($validated);
+
+        return redirect()->route('tasks.index')
+            ->with('success', 'Task successfully added!');
     }
 
     /**
@@ -125,7 +134,16 @@ class TaskController extends Controller
      */
     public function update(Request $request, Task $task)
     {
-        //
+        $validated = $request->validate([
+            'title' => 'required|max:255',
+            'description' => 'nullable|string',
+            'due_date' => 'nullable|date',
+        ]);
+
+        $task->update($validated);
+
+        return redirect()->route('tasks.index')
+            ->with('success', 'Task successfully updated!');
     }
 
     /**
@@ -133,7 +151,10 @@ class TaskController extends Controller
      */
     public function destroy(Task $task)
     {
-        //
+        $task->delete();
+
+        return redirect()->route('tasks.index')
+            ->with('success', 'Task successfully deleted!');
     }
 
     /**
@@ -141,6 +162,9 @@ class TaskController extends Controller
      */
     public function toggleStatus(Task $task)
     {
-        //
+        $task->status = $task->status === 'pending' ? 'completed' : 'pending';
+        $task->save();
+
+        return back()->with('success', 'Task status updated!');
     }
 }
