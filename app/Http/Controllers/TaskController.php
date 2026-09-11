@@ -75,9 +75,17 @@ class TaskController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $query = Task::query();
+
+        if ($request->has('status') && $request->status !== 'all') {
+            $query->where('status', $request->status);
+        }
+
+        $tasks = $query->latest()->get();
+
+        return view('tasks.index', compact('tasks'));
     }
 
     /**
