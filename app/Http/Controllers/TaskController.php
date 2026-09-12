@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Task;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 class TaskController extends Controller
@@ -11,27 +12,26 @@ class TaskController extends Controller
     private function getStats()
     {
         return [
-            'totalTasks' => Task::count(),
-            'pendingTasks' => Task::where('status', 'pending')
+            'totalTasks' => Auth::user()->tasks()->count(),
+            'pendingTasks' => Auth::user()->tasks()->where('status', 'pending')
                 ->where(function ($q) {
                     $q->whereNull('due_date')->orWhere('due_date', '>=', Carbon::today());
                 })->count(),
-            'completedTasks' => Task::where('status', 'completed')->count(),
-            'overdueTasks' => Task::where('status', 'pending')
+            'completedTasks' => Auth::user()->tasks()->where('status', 'completed')->count(),
+            'overdueTasks' => Auth::user()->tasks()->where('status', 'pending')
                 ->whereNotNull('due_date')
                 ->where('due_date', '<', Carbon::today())
                 ->count(),
         ];
     }
 
-    //Display a listing of the resource.
     public function index(Request $request)
     {
         $status = $request->query('status', 'all');
         $search = $request->query('search');
         $viewMode = $request->query('view', 'dashboard');
 
-        $query = Task::query();
+        $query = Auth::user()->tasks();
 
         if ($search) {
             $query->where(function ($q) use ($search) {
@@ -52,7 +52,7 @@ class TaskController extends Controller
                   ->where('due_date', '<', Carbon::today());
         }
 
-        $tasks = Task::latest()->get();
+        $tasks = $query->latest()->get();
         $stats = $this->getStats();
 
         if ($request->wantsJson() || $request->ajax()) {
@@ -71,7 +71,6 @@ class TaskController extends Controller
         ], $stats));
     }
 
-    //search suggestions
     public function searchSuggestions(Request $request)
     {
         $q = trim($request->query('q', ''));
@@ -80,7 +79,8 @@ class TaskController extends Controller
             return response()->json([]);
         }
 
-        $suggestions = Task::where('title', 'like', "%{$q}%")
+        $suggestions = Auth::user()->tasks()
+            ->where('title', 'like', "%{$q}%")
             ->select('id', 'title', 'status', 'due_date')
             ->limit(6)
             ->get()
@@ -97,7 +97,6 @@ class TaskController extends Controller
         return response()->json($suggestions);
     }
 
-    ///new task
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -114,7 +113,7 @@ class TaskController extends Controller
             'due_date' => 'required|date',
         ]);
 
-        $task = Task::create($validated);
+        $task = Auth::user()->tasks()->create($validated);
         $stats = $this->getStats();
 
         if ($request->wantsJson() || $request->ajax()) {
@@ -129,9 +128,12 @@ class TaskController extends Controller
         return redirect()->route('tasks.index')->with('success', 'Task created successfully!');
     }
 
-    //update task
     public function update(Request $request, Task $task)
     {
+        if ($task->user_id !== Auth::id()) {
+            abort(403);
+        }
+
         $validated = $request->validate([
             'title' => 'required|max:255',
             'description' => [
@@ -161,9 +163,12 @@ class TaskController extends Controller
         return redirect()->route('tasks.index')->with('success', 'Task updated successfully!');
     }
 
-    //del task
     public function destroy(Request $request, Task $task)
     {
+        if ($task->user_id !== Auth::id()) {
+            abort(403);
+        }
+
         $task->delete();
         $stats = $this->getStats();
 
@@ -178,9 +183,12 @@ class TaskController extends Controller
         return redirect()->route('tasks.index')->with('success', 'Task deleted successfully!');
     }
 
-    //Toggle the status of the specified task (pending <-> completed).
     public function toggleStatus(Request $request, Task $task)
     {
+        if ($task->user_id !== Auth::id()) {
+            abort(403);
+        }
+
         $task->status = $task->status === 'pending' ? 'completed' : 'pending';
         $task->save();
         $stats = $this->getStats();

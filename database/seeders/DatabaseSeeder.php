@@ -6,15 +6,12 @@ use App\Models\User;
 use App\Models\Task;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 
 class DatabaseSeeder extends Seeder
 {
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
-        // Seed default user
         $user = User::firstOrCreate(
             ['email' => 'abdul@example.com'],
             [
@@ -24,8 +21,9 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // Clear existing tasks to ensure clean demo state
+        Schema::disableForeignKeyConstraints();
         Task::truncate();
+        Schema::enableForeignKeyConstraints();
 
         $tasks = [
             [
@@ -44,7 +42,7 @@ class DatabaseSeeder extends Seeder
                 'title' => 'Fix login issue',
                 'description' => 'Resolve the login bug reported by the user.',
                 'due_date' => '2025-09-10',
-                'status' => 'pending', // Overdue because date is in the past
+                'status' => 'pending',
             ],
             [
                 'title' => 'Update dependencies',
@@ -79,7 +77,7 @@ class DatabaseSeeder extends Seeder
         ];
 
         foreach ($tasks as $task) {
-            Task::create($task);
+            $user->tasks()->create($task);
         }
     }
 }

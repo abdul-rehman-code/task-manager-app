@@ -1,11 +1,10 @@
- @extends('layouts.app')
+@extends('layouts.app')
 
 @section('title', request('view') === 'tasks_only' ? 'TaskManager - My Tasks' : 'TaskManager - Dashboard')
 
 @section('content')
 
 @php
-    // Prepare initial tasks array for Alpine reactive state
     $initialTasks = $tasks->map(function($t) {
         $isOverdue = $t->status === 'pending' && $t->due_date && $t->due_date->isPast();
         return [
@@ -44,13 +43,11 @@
         addForm: { title: '', description: '', due_date: '', errors: {}, submitting: false },
         editForm: { errors: {}, submitting: false },
 
-        // Count words in text
         countWords(str) {
             if (!str || !str.trim()) return 0;
             return str.trim().split(/\s+/).filter(w => w.length > 0).length;
         },
 
-        // Filter tasks locally by search & status with ZERO page reload!
         get filteredTasks() {
             return this.tasks.filter(task => {
                 let matchStatus = true;
@@ -70,7 +67,6 @@
             });
         },
 
-        // Table search auto-suggestions 
         fetchTableSuggestions() {
             if (this.searchQuery.trim().length < 3) {
                 this.tableSuggestions = [];
@@ -93,7 +89,6 @@
             this.showTableSuggestions = false;
         },
 
-        // AJAX Add Task (NO FULL PAGE RELOAD)
         submitAddTask() {
             this.addForm.errors = {};
 
@@ -154,7 +149,6 @@
             });
         },
 
-        // AJAX Edit Task (NO FULL PAGE RELOAD)
         submitEditTask() {
             this.editForm.errors = {};
 
@@ -207,7 +201,6 @@
             });
         },
 
-        // AJAX Toggle Task Status (NO FULL PAGE RELOAD)
         toggleStatus(taskId) {
             fetch(`/tasks/${taskId}/toggle`, {
                 method: 'PATCH',
@@ -235,13 +228,11 @@
             });
         },
 
-        // Open Custom Delete Modal
         confirmDelete(task) {
             this.taskToDelete = task;
             this.showDeleteModal = true;
         },
 
-        // AJAX Delete Task (NO FULL PAGE RELOAD)
         executeDelete() {
             if (!this.taskToDelete) return;
             const taskId = this.taskToDelete.id;
@@ -270,14 +261,11 @@
     }"
     @open-add-modal.window="showAddModal = true">
 
-   
     @if ($viewMode !== 'tasks_only')
         
-        {{-- WELCOME BANNER --}}
         <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-500/10 via-indigo-500/10 to-blue-600/10 border border-blue-200/60 p-6 lg:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm">
             <div class="space-y-2 text-center md:text-left z-10">
                 <div class="inline-flex items-center gap-2">
-                    
                     <h1 class="text-2xl lg:text-3xl font-extrabold text-slate-900 tracking-tight">
                         Hello, {{ Auth::user()->name ?? 'Abdul Rehman' }}!
                     </h1>
@@ -287,7 +275,6 @@
                 </p>
             </div>
 
-            <!-- Banner Graphic Illustration -->
             <div class="relative w-48 md:w-56 h-28 flex items-center justify-center shrink-0">
                 <div class="w-44 h-24 bg-slate-900 rounded-lg shadow-xl border-4 border-slate-700 p-2 flex flex-col justify-between relative overflow-hidden">
                     <div class="bg-blue-600/20 w-full h-full rounded flex items-center justify-center border border-blue-500/30">
@@ -303,7 +290,6 @@
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <!-- Total Tasks -->
             <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm hover:shadow-md transition">
                 <div class="flex items-center justify-between">
                     <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center">
@@ -319,7 +305,6 @@
                 </div>
             </div>
 
-            <!-- Pending Tasks -->
             <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm hover:shadow-md transition">
                 <div class="flex items-center justify-between">
                     <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center">
@@ -335,7 +320,6 @@
                 </div>
             </div>
 
-            <!-- Completed Tasks -->
             <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm hover:shadow-md transition">
                 <div class="flex items-center justify-between">
                     <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center">
@@ -351,7 +335,6 @@
                 </div>
             </div>
 
-            <!-- Overdue Tasks -->
             <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm hover:shadow-md transition">
                 <div class="flex items-center justify-between">
                     <div class="w-12 h-12 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center">
@@ -370,10 +353,8 @@
 
     @endif
 
-    
     <div class="w-full space-y-4">
         
-        <!-- Table Header Bar -->
         <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
             <div class="flex items-center gap-3">
                 <h2 class="text-xl font-extrabold text-slate-900 tracking-tight">My Tasks</h2>
@@ -383,7 +364,6 @@
             </div>
 
             <div class="flex items-center gap-3 w-full sm:w-auto">
-                <!-- Status Filter Dropdown (ZERO PAGE RELOAD via x-model!) -->
                 <div class="flex items-center">
                     <select x-model="selectedStatus"
                         class="bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold rounded-xl px-3 py-2 focus:outline-none focus:border-blue-500 cursor-pointer">
@@ -394,7 +374,6 @@
                     </select>
                 </div>
 
-                <!-- Table Search Input with AUTO-SUGGESTION DROPDOWN & REALTIME FILTER -->
                 <div class="relative flex-1 sm:w-64" @click.outside="showTableSuggestions = false">
                     <input type="text"
                         x-model="searchQuery"
@@ -407,7 +386,6 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                     </svg>
 
-                    <!-- Auto-Suggestion Dropdown Popup under Table Search Input -->
                     <div x-show="showTableSuggestions" x-cloak
                         class="absolute left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-slate-200 py-1.5 z-50 overflow-hidden max-h-60 overflow-y-auto">
                         <div class="px-3 py-1 bg-slate-50 border-b border-slate-100 flex items-center justify-between text-[10px] font-semibold text-slate-500 uppercase">
@@ -440,7 +418,6 @@
                     <button @click="searchQuery = ''; selectedStatus = 'all'" class="text-xs font-semibold text-slate-500 hover:text-slate-700 px-1 py-1 cursor-pointer">Clear</button>
                 </template>
 
-                <!-- Add New Task Button -->
                 <button @click="showAddModal = true"
                     class="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs px-4 py-2 rounded-xl shadow-md shadow-blue-600/30 transition shrink-0 flex items-center gap-1.5 cursor-pointer active:scale-95">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -451,7 +428,6 @@
             </div>
         </div>
 
-        <!-- Task List Table Container -->
         <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden w-full">
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
@@ -468,7 +444,6 @@
                             <tr class="hover:bg-slate-50/60 transition"
                                 :class="task.is_overdue ? 'bg-rose-50/30' : (task.status === 'completed' ? 'bg-emerald-50/30' : '')">
                                 
-                                <!-- Title & Description -->
                                 <td class="py-4 px-6">
                                     <div class="font-bold text-slate-900 text-sm" x-text="task.title"></div>
                                     <template x-if="task.description">
@@ -476,7 +451,6 @@
                                     </template>
                                 </td>
 
-                                <!-- Due Date -->
                                 <td class="py-4 px-6 whitespace-nowrap">
                                     <template x-if="task.due_date">
                                         <div class="flex items-center gap-1.5 font-medium text-xs"
@@ -492,7 +466,6 @@
                                     </template>
                                 </td>
 
-                                <!-- Clean Status Tag Pill -->
                                 <td class="py-4 px-6 whitespace-nowrap">
                                     <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border"
                                         :class="{
@@ -504,41 +477,31 @@
                                     </span>
                                 </td>
 
-                                <!-- Action Buttons including Prominent "Mark as Complete" / "Mark as Pending" (AJAX) -->
                                 <td class="py-4 px-6 text-right whitespace-nowrap">
                                     <div class="inline-flex items-center gap-2.5">
-                                        
-                                        <!-- PROMINENT BUTTON: Mark as Complete / Mark as Pending -->
-                                        <template x-if="task.status === 'pending' || task.is_overdue">
-                                            <button @click="toggleStatus(task.id)"
-                                                class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs shadow-md shadow-emerald-600/30 transition flex items-center gap-1.5 cursor-pointer active:scale-95">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
-                                                </svg>
-                                                Mark as Complete
-                                            </button>
-                                        </template>
+                                        <button @click="toggleStatus(task.id)"
+                                            type="button"
+                                            class="px-3.5 py-1.5 text-white font-bold rounded-xl text-xs shadow-sm transition flex items-center gap-1.5 cursor-pointer shrink-0"
+                                            :class="task.status === 'completed' ? 'bg-amber-500 hover:bg-amber-600 shadow-amber-500/30' : 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/30'">
+                                            <svg x-show="task.status === 'completed'" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                            <svg x-show="task.status !== 'completed'" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+                                            </svg>
+                                            <span x-text="task.status === 'completed' ? 'Mark as Pending' : 'Mark as Complete'"></span>
+                                        </button>
 
-                                        <template x-if="task.status === 'completed'">
-                                            <button @click="toggleStatus(task.id)"
-                                                class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl text-xs shadow-md shadow-amber-500/30 transition flex items-center gap-1.5 cursor-pointer active:scale-95">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                                </svg>
-                                                Mark as Pending
-                                            </button>
-                                        </template>
-
-                                        <!-- Edit Button -->
                                         <button @click="showEditModal = true; editTask = { id: task.id, title: task.title, description: task.description, due_date: task.due_date }"
+                                            type="button"
                                             class="p-2 text-blue-600 hover:bg-blue-50 rounded-xl border border-slate-200 hover:border-blue-300 transition cursor-pointer" title="Edit Task">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                             </svg>
                                         </button>
 
-                                        <!-- Custom Delete Confirmation Trigger -->
                                         <button @click="confirmDelete(task)"
+                                            type="button"
                                             class="p-2 text-rose-600 hover:bg-rose-50 rounded-xl border border-slate-200 hover:border-rose-300 transition cursor-pointer" title="Delete Task">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
@@ -565,7 +528,6 @@
                 </table>
             </div>
 
-            <!-- Footer count -->
             <div class="px-4 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
                 <span>Showing <strong x-text="filteredTasks.length"></strong> tasks</span>
             </div>
@@ -573,7 +535,6 @@
 
     </div>
 
-    {{-- ADD TASK MODAL (WITH REQUIRED DUE DATE & 100 WORDS DESCRIPTION LIMIT) --}}
     <div x-show="showAddModal" x-cloak
         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
         <div @click.outside="showAddModal = false"
@@ -643,7 +604,6 @@
         </div>
     </div>
 
-    {{-- EDIT TASK MODAL (WITH REQUIRED DUE DATE & 100 WORDS DESCRIPTION LIMIT) --}}
     <div x-show="showEditModal" x-cloak
         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
         <div @click.outside="showEditModal = false"
@@ -713,7 +673,6 @@
         </div>
     </div>
 
-    {{-- BEAUTIFUL CUSTOM DELETE CONFIRMATION MODAL --}}
     <div x-show="showDeleteModal" x-cloak
         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
         <div @click.outside="showDeleteModal = false"
