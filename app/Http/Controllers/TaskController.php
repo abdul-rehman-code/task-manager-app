@@ -24,9 +24,7 @@ class TaskController extends Controller
         ];
     }
 
-    /**
-     * Display a listing of the resource.
-     */
+    //Display a listing of the resource.
     public function index(Request $request)
     {
         $status = $request->query('status', 'all');
@@ -73,9 +71,7 @@ class TaskController extends Controller
         ], $stats));
     }
 
-    /**
-     * Return search suggestions for task titles (minimum 3 characters).
-     */
+    //search suggestions
     public function searchSuggestions(Request $request)
     {
         $q = trim($request->query('q', ''));
@@ -101,9 +97,7 @@ class TaskController extends Controller
         return response()->json($suggestions);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+    ///new task
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -135,9 +129,7 @@ class TaskController extends Controller
         return redirect()->route('tasks.index')->with('success', 'Task created successfully!');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
+    //update task
     public function update(Request $request, Task $task)
     {
         $validated = $request->validate([
@@ -169,9 +161,7 @@ class TaskController extends Controller
         return redirect()->route('tasks.index')->with('success', 'Task updated successfully!');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+    //del task
     public function destroy(Request $request, Task $task)
     {
         $task->delete();
@@ -188,9 +178,7 @@ class TaskController extends Controller
         return redirect()->route('tasks.index')->with('success', 'Task deleted successfully!');
     }
 
-    /**
-     * Toggle the status of the specified task (pending <-> completed).
-     */
+    //Toggle the status of the specified task (pending <-> completed).
     public function toggleStatus(Request $request, Task $task)
     {
         $task->status = $task->status === 'pending' ? 'completed' : 'pending';

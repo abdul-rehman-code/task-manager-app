@@ -1,4 +1,4 @@
-@extends('layouts.app')
+ @extends('layouts.app')
 
 @section('title', request('view') === 'tasks_only' ? 'TaskManager - My Tasks' : 'TaskManager - Dashboard')
 
@@ -70,7 +70,7 @@
             });
         },
 
-        // Table search auto-suggestions (triggers at 3+ characters)
+        // Table search auto-suggestions 
         fetchTableSuggestions() {
             if (this.searchQuery.trim().length < 3) {
                 this.tableSuggestions = [];
@@ -270,14 +270,14 @@
     }"
     @open-add-modal.window="showAddModal = true">
 
-    {{-- CONDITIONAL WELCOME BANNER & STAT CARDS (Hidden when viewMode is 'tasks_only') --}}
+   
     @if ($viewMode !== 'tasks_only')
         
         {{-- WELCOME BANNER --}}
         <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-500/10 via-indigo-500/10 to-blue-600/10 border border-blue-200/60 p-6 lg:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm">
             <div class="space-y-2 text-center md:text-left z-10">
                 <div class="inline-flex items-center gap-2">
-                    <span class="text-2xl">👋</span>
+                    
                     <h1 class="text-2xl lg:text-3xl font-extrabold text-slate-900 tracking-tight">
                         Hello, {{ Auth::user()->name ?? 'Abdul Rehman' }}!
                     </h1>
@@ -302,7 +302,6 @@
             </div>
         </div>
 
-        {{-- 4 STAT SUMMARY CARDS GRID --}}
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <!-- Total Tasks -->
             <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm hover:shadow-md transition">
@@ -371,7 +370,7 @@
 
     @endif
 
-    {{-- FULL WIDTH TASKS SECTION --}}
+    
     <div class="w-full space-y-4">
         
         <!-- Table Header Bar -->

@@ -9,9 +9,7 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    /**
-     * Show registration form.
-     */
+    // Show registration form
     public function showRegister()
     {
         if (Auth::check()) {
@@ -20,9 +18,7 @@ class AuthController extends Controller
         return view('auth.register');
     }
 
-    /**
-     * Handle user registration.
-     */
+    // user registration.
     public function register(Request $request)
     {
         $validated = $request->validate([
@@ -44,9 +40,7 @@ class AuthController extends Controller
         return redirect()->route('tasks.index')->with('success', 'Welcome! Account created successfully.');
     }
 
-    /**
-     * Show login form.
-     */
+    // Show login form.
     public function showLogin()
     {
         if (Auth::check()) {
@@ -55,9 +49,7 @@ class AuthController extends Controller
         return view('auth.login');
     }
 
-    /**
-     * Handle user authentication.
-     */
+    // Handle user authentication.
     public function login(Request $request)
     {
         $credentials = $request->validate([
@@ -79,9 +71,7 @@ class AuthController extends Controller
         ])->onlyInput('login');
     }
 
-    /**
-     * Log the user out.
-     */
+    
     public function logout(Request $request)
     {
         Auth::logout();
